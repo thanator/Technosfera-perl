@@ -105,7 +105,6 @@ say $href`->`{h}` `{"key\0"}` `[2];     # 7
 $href->{f}->(3);                # ok:3
 ```
 
-
 ---
 # HASH != HASHREF
 
@@ -122,7 +121,7 @@ say @array; # ARRAY(0x7fcd02821d38)
 say %hash; # key, value
 
 *%hash  = {key => "value"};
-say %hash; # HASH(0x7fbbd90052f0), 
+say %hash; # HASH(0x7fbbd90052f0)
 
 *%hash = ( key1 => (1,2), key2 => (3,4) );
 say $hash{key1}; # 1
@@ -148,6 +147,29 @@ $href->{ary}[7] = "seven";
 say $href->{ary};       # ARRAY(0x7f9...)
 say $href->{ary}[7];    # seven
 say $#{ $href->{ary} }; # 7
+```
+
+---
+# Автооживление (autovivification)
+
+```perl
+$track = {
+    name => "Nobody home",
+    band => "Pink Floyd",
+    album => { name => "The Wall", year => 1979 }
+};
+
+$track = {
+    name => "Arnold Lane",
+    band => "Pink Floyd"
+};
+
+say "Track from single" unless $track->{album};
+
+say "'The Wall' album"
+    if $track->{album}{name} eq 'The Wall';
+
+say "Track from album" if $track->{album};
 ```
 
 ---
@@ -495,7 +517,26 @@ sub dumper; sub dumper {
 
 ---
 
+layout:false
 # Содержание
+
+* Сложные структуры данных
+    - Вложенные структуры
+    - Символические ссылки
+    - Массивы массивов
+    - Рекурсия
+* **Функции**
+    - Контекст
+    - Прототипы
+    - Стек
+    - Lvalue
+* Операторы
+    - true и false
+    - Строки и числа
+    - Логические операторы
+* Регулярные выражения
+    - введение
+* Юникод
 
 ---
 
@@ -543,6 +584,7 @@ if (test) {...} # scalar
 test();         # void
 ```
 
+
 ---
 
 # Prototype: empty & scalar
@@ -584,6 +626,7 @@ my %h = (k => 1,x => 2);
 test(@a); # ok, 1 2 3
 test(%h); # ok k 1 x 2
 ```
+
 ---
 
 # Prototype: optional
@@ -832,6 +875,12 @@ test(); # Not enough arguments for main::test
 
 ---
 
+.center[
+![center-aligned image]( vzhuh.jpg )
+]
+
+---
+
 # Вызов с чужими параметрами
 
 ```perl
@@ -893,7 +942,7 @@ my $x = rand();
 my $y = rand();
 
 for my $op (qw(+ - * /)) {
-    say "$x $op $y = " . $op->( $x,$y );
+    say "$x $op $y = " . $op{$op}->( $x,$y );
 }
 ```
 
@@ -1543,12 +1592,37 @@ y/A-Z/a-z/; # on $_
 ```
 
 ---
+
+layout:false
+# Содержание
+
+* Сложные структуры данных
+    - Вложенные структуры
+    - Символические ссылки
+    - Массивы массивов
+    - Рекурсия
+* Функции
+    - Контекст
+    - Прототипы
+    - Стек
+    - Lvalue
+* Операторы
+    - true и false
+    - Строки и числа
+    - Логические операторы
+* **Регулярные выражения**
+    - введение
+* Юникод
+
+---
 layout:false
 
 # Регулярные выражения
 > (*regular expressions*)
 
 ## формальный язык поиска и осуществления манипуляций с подстроками в тексте, основанный на использовании метасимволов
+
+.normal-width[![left-aligned image]( owl.jpg )]
 
 ---
 
@@ -1734,6 +1808,35 @@ m/^(\w(\w+))\s+((\w+))/;
 
 ---
 
+# Выбор альтернатив `|`
+
+```perl
+# match 'http' or 'https'
+m/^https?$/;                  # ok
+```
+--
+```perl
+# match 'http', 'https' or 'ftp'
+m/^https?|ftp$/;              # ???
+```
+--
+```perl
+"httpaa" =~ m/^https?|ftp$/;  # true
+"aaaftp" =~ m/^https?|ftp$/;  # true
+```
+--
+```perl
+# match 'http', 'https' or 'ftp'
+`m/(^https?|ftp$)/;            # !!!`
+```
+--
+```perl
+# match 'http', 'https' or 'ftp'
+m/^(https?|ftp)$/;             # ok
+```
+
+---
+
 # Модификаторы
 
 > `/i` (case insensitive)
@@ -1779,7 +1882,7 @@ m/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
 ```perl
 # /Nirvana/1991 - Nevermind/2 - In Bloom.mp3
 # /Deep Purple/1972 - Machine Head/5 Smoke On The Water.mp3
-m!^/([^/]+)/(\d+) - ([^/])+/(\d+)\s*-?\s*(.+)\.mp3$!
+m!^/([^/]+)/(\d+) - ([^/]+)/(\d+)\s*-?\s*(.+)\.mp3$!
 
 # $1 - Artist name
 # $2 - Album year
@@ -1795,6 +1898,29 @@ if ($filename =~ /\.(pl|pm|t|html|js)$/ i) {
 }
 ```
 ]
+
+---
+
+layout:false
+# Содержание
+
+* Сложные структуры данных
+    - Вложенные структуры
+    - Символические ссылки
+    - Массивы массивов
+    - Рекурсия
+* Функции
+    - Контекст
+    - Прототипы
+    - Стек
+    - Lvalue
+* Операторы
+    - true и false
+    - Строки и числа
+    - Логические операторы
+* Регулярные выражения
+    - введение
+* **Юникод**
 
 ---
 
@@ -2327,6 +2453,7 @@ say "\N{APPLE LOGO}"; # 
 # Casefolding
 
 ```perl
+use utf8;
 use feature "fc"; # perl v5.16+
 
 # sort case-insensitively
@@ -2335,8 +2462,8 @@ my @sorted = sort {
 } @list;
  
 # both are true:
-fc("tschüß") eq fc("TSCHÜSS")
-fc("Σίσυφος") eq fc("ΣΊΣΥΦΟΣ")
+fc("tschüß") eq fc("TSCHÜSS") or die "Not equal";
+fc("Σίσυφος") eq fc("ΣΊΣΥΦΟΣ") or die "Not equal";
 ```
 
 ---
@@ -2352,8 +2479,9 @@ fc("Σίσυφος") eq fc("ΣΊΣΥΦΟΣ")
 ## `/i` (case insensitive)
 
 ```perl
-"tschüß" =~ /TSCHÜSS/i    # match. ß ↔ SS
-"Σίσυφος" =~ /ΣΊΣΥΦΟΣ/i   # match. Σ ↔ σ ↔ ς
+use utf8;
+"tschüß" =~ /TSCHÜSS/i or die;  # match. ß ↔ SS
+"Σίσυφος" =~ /ΣΊΣΥΦΟΣ/i or die; # match. Σ ↔ σ ↔ ς
 ```
 
 
@@ -2496,9 +2624,31 @@ Compare:
 
 ---
 
-layout: false
+# Документация
 
-# Documentation
+## Структуры данных
+
+* [perllol](http://perldoc.perl.org/perllol.html)
+* [perldata](http://perldoc.perl.org/perldata.html)
+* [perlref](http://perldoc.perl.org/perlref.html)
+* [perldsc](http://perldoc.perl.org/perldsc.html)
+* [perlreftut](http://perldoc.perl.org/perlreftut.html)
+
+## Операторы и функции
+
+* [perlop](http://perldoc.perl.org/perlop.html)
+* [perlfunc](http://perldoc.perl.org/perlfunc.html)
+* [perlsub](http://perldoc.perl.org/perlsub.html)
+
+## Regexp
+
+* [perlrequick](http://perldoc.perl.org/perlrequick.html)
+* [perlretut](http://perldoc.perl.org/perlretut.html)
+* [perlre](http://perldoc.perl.org/perlre.html)
+
+---
+
+# Документация по unicode
 
 ## perldoc
 - [perluniintro](http://metacpan.org/pod/perluniintro), [perlunitut](http://metacpan.org/pod/perlunitut), [perlunicook](http://metacpan.org/pod/perlunicook), [perlunifaq](http://metacpan.org/pod/perlunifaq),  [perlunicode](http://metacpan.org/pod/perlunicode), [perluniprops](http://perldoc.perl.org/perluniprops.html)
@@ -2519,8 +2669,53 @@ layout: false
 - [Статья Joel Spolsky про кодировки](http://local.joelonsoftware.com/wiki/%D0%90%D0%B1%D1%81%D0%BE%D0%BB%D1%8E%D1%82%D0%BD%D1%8B%D0%B9_%D0%9C%D0%B8%D0%BD%D0%B8%D0%BC%D1%83%D0%BC,_%D0%BA%D0%BE%D1%82%D0%BE%D1%80%D1%8B%D0%B9_%D0%9A%D0%B0%D0%B6%D0%B4%D1%8B%D0%B9_%D0%A0%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA_%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE_%D0%9E%D0%B1%D0%B5%D1%81%D0%BF%D0%B5%D1%87%D0%B5%D0%BD%D0%B8%D1%8F_%D0%9E%D0%B1%D1%8F%D0%B7%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%BE_%D0%94%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD_%D0%97%D0%BD%D0%B0%D1%82%D1%8C_%D0%BE_Unicode_%D0%B8_%D0%9D%D0%B0%D0%B1%D0%BE%D1%80%D0%B0%D1%85_%D0%A1%D0%B8%D0%BC%D0%B2%D0%BE%D0%BB%D0%BE%D0%B2)
 
 ---
-layout:false
 
+# Домашнее задание
+
+## 1. Клонирование сложных структур данных
+
+Требуется написать функцию, принимающую на вход ссылку на какую либо структуру данных и отдающую, в качестве результата, ее точную независимую копию.
+Это значит, что ни один элемент результирующей структуры не может ссылаться на элементы исходной, но при этом она должна в точности повторять ее схему.
+
+Входные данные:
+* undef
+* строка
+* число
+* ссылка на массив
+* ссылка на хеш
+
+Элементами ссылок на массив и хеш могут быть любые из указанных выше конструкций.
+Любые, отличные от указанных типы данных - недопустимы. В этом случае результатом клонирования должен быть undef.
+
+.small16[
+https://github.com/Nikolo/Technosfera-perl/tree/master/homeworks/deep-clone
+]
+
+---
+
+# Домашнее задание
+
+## 2. Поиск анаграмм по словарю
+
+Напишите функцию поиска всех множеств анаграмм по словарю.
+Например:
+* 'пятак', 'пятка' и 'тяпка' - принадлежат одному множеству,
+* 'листок', 'слиток' и 'столик' - другому.
+
+Входные данные для функции:
+ссылка на массив, каждый элемент которого - слово на русском языке в кодировке UTF-8
+
+Выходные данные:
+Ссылка на хеш множеств анаграмм.
+* Ключ - первое встретившееся в словаре слово из множества
+* Значение - ссылка на массив, каждый элемент которого - слово из множества. Массив должен быть отсортирован по возрастанию.
+* Множества из одного элемента не должны попасть в результат.
+* Все слова должны быть приведены к нижнему регистру.
+* Каждое слово должно встречаться только один раз.
+
+.small16[
+https://github.com/Nikolo/Technosfera-perl/tree/master/homeworks/anagrams
+]
 
 ---
 class:center, middle
@@ -2537,17 +2732,119 @@ class:lastpage title
 .teacher[![teacher]()]
 
 
+---
+layout:true
+# Секретные операторы
+---
 
+```perl
+*0+           Venus              Приведение к числу
+say 0+"234asd"; # 234
+```
 
+```perl
+*!!           Bang bang          Приведение к bool
+say !! $string; # 1
+say !! undef; # ''
+```
 
+```perl
+*~~           Inchworm           Scalar context
 
+say ~~localtime();
+#say scalar localtime();
+```
 
+```perl
+*@{[ ]}        Babycart          Интерполяция
 
+say "1 + 2 = @{[ 1 + 2 ]}" # 1 + 2 = 3
+```
 
+---
 
+## Отвёртки
 
+```perl
+*-=! -=!!   Плоские             Условный декремент
+$x -=!! $y     # $x-- if $y;
+$x -=!  $y     # $x-- if not $y;
 
+*+=! +=!!   Крестовые           Условный инкремент
+$x +=!! $y     # $x++ if $y;
+$x +=!  $y     # $x++ if not $y;
 
+*x=! x=!!   Крестовые           Условный сброс в ''
+$x x=!! $y     # $x='' if not $y;
+$x x=!  $y     # $x='' if $y;
 
+**=! *=!!   Torx                Условный сброс в 0
+$x *=!! $y     # $x=0 if not $y;
+$x *=!  $y     # $x=0 if $y;
+```
 
+---
 
+## Интерполяция
+
+> Инлайновое исполнение:<code><br/></code>
+> dereference + reference constructor
+
+```perl
+
+$var = 100;
+say "1+2 = @{[ 1+2 ]}"; # 1+2 = 3
+say "\$var/=10 = @{[do{ $var/=10; $var }]}";
+    # $var/=10 = 10
+
+say "1+2 = ${\( 1+2 )}";
+say "1+2 = ${\do{ 1+2 }}";
+
+say "1+2 = ${{key=> 1+2 }}{key}";
+say "\$var = ${{key=> do{ $var } }}{key}";
+
+say "Now: ${\scalar localtime}";
+   # Now: Wed Mar  1 16:58:36 2017
+```
+
+???
+
+use 5.010;
+use Time::Local;
+my $time = timelocal(30,25,19,3,2,16);
+say "Now: ${\scalar localtime}";
+
+---
+
+layout:false
+# Юникод: конкатенация
+
+.small[
+```perl
+sub debug {
+    my $str = shift;
+    printf "%d\t%s\t%vX\n", utf8::is_utf8($str), $str, $str;
+}
+
+$bytes_string = "Ф";
+debug($bytes_string);
+
+$utf_string = Encode::decode("UTF-8", $bytes_string);
+debug($utf_string);
+
+$result = $bytes_string.$utf_string;
+debug($result);
+
+$result2 = Encode::encode("UTF-8", $result);
+debug($result2);
+```
+]
+--
+.small[
+```perl
+0       Ф       D0.A4
+1       Ф       424
+1       Ð¤Ф     D0.A4.424
+0       Ð¤Ф     C3.90.C2.A4.D0.A4
+```
+]
